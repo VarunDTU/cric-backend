@@ -42,6 +42,6 @@ export function getCommentary(ball, match) {
   const extras = ball.extras;
   const status = ball.status;
   const commentary = `${batsman} scores ${runs} runs against ${bowler}`;
-  console.log(commentary);
+
   return commentary;
 }

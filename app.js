@@ -1,12 +1,17 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
+import mongoose from "mongoose";
 import { Server } from "socket.io";
 import { getCommentary, UpdateMatch } from "./components/updatematch.js";
+import { matchs } from "./models/match.js";
 
 const app = express();
 const port = 8000;
+app.use(express.json());
+mongoose.connect(process.env.MONGODB_URI, {});
 const server = createServer(app);
+
 const io = new Server(server, {
   connectionStateRecoveryOptions: {},
   cors: {
@@ -310,8 +315,18 @@ var match = {
     },
   ],
 };
+await matchs
+  .findOne({ matchid: 1 })
+  .then((res) => {
+    match = res;
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+
 io.on("connection", (socket) => {
-  socket.on("UpdateMatch", (newMatch) => {
+  socket.on("UpdateMatch", async (newMatch) => {
     const ball = newMatch.ball;
     if (ball.status != "none") {
       const commentary = getCommentary(newMatch.ball, match);
@@ -322,6 +337,13 @@ io.on("connection", (socket) => {
     }
     match = newMatch.matchDetails;
     io.emit("match", match);
+    await matchs
+      .findOneAndUpdate({ matchid: 1 }, match, {
+        upsert: true,
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
   socket.on("disconnect", () => {
     console.log("user disconnected", socket.id);
