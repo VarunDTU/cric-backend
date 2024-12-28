@@ -349,7 +349,27 @@ io.on("connection", (socket) => {
     console.log("user disconnected", socket.id);
   });
 });
+app.get("/match/all", (req, res) => {
+  return matchs
+    .find({})
+    .then((match) => {
+      return res.json(match);
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json({ message: "error" });
+    });
+});
 app.get("/match/:matchId", (req, res) => {
+  // matchs
+  //   .findOne({ _id: req.params.matchId })
+  //   .then((match) => {
+  //     return res.json(match);
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     return res.json({ message: "error" });
+  //   });
   return res.json(match);
 });
 server.listen(port, () => {
